@@ -1,4 +1,4 @@
-# This is a Discord bot that allows for more IRC-like moderation.
+# This is a Discord bot that allows for more IRC-like moderation
 import discord
 import config
 
