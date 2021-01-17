@@ -1,4 +1,7 @@
 # This is a Discord bot that allows for more IRC-like moderation
+# TODO:
+# 1) Implement actual functionality to mute and unmute after time passes
+
 import discord
 import config
 
