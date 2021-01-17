@@ -1,6 +1,7 @@
 # This is a Discord bot that allows for more IRC-like moderation
 # TODO:
 # 1) Implement actual functionality to mute and unmute after time passes
+# 2) Implement a totally arbitrary point system that people can assign to others
 
 import discord
 import config
