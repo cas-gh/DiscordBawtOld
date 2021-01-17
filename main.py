@@ -3,9 +3,9 @@
 # 1) Implement actual functionality to mute and unmute after time passes.
 # 2) Create database for the point system.
 
+import config
 import discord
 from discord.utils import get
-import config
 
 # Sets the intents on startup so bot can read all users in the server
 intents = discord.Intents.default()
@@ -75,13 +75,13 @@ async def on_message(message):
                     await message.channel.send("There is no user in this server by that name.")
 
                 elif vote_sign == '--':
-                    if vote_amount < 1:
+                    if vote_amount < 1 or vote_amount > 100:
                         raise ValueError
                     else:
                         await message.channel.send(f'Vote amount: -{vote_amount}.\nVoted for: {vote_member}.')
 
                 elif vote_sign == '++':
-                    if vote_amount < 1:
+                    if vote_amount < 1 or vote_amount > 100:
                         raise ValueError
                     else:
                         await message.channel.send(f'Vote amount: {vote_amount}.\nVoted for: {vote_member}.')
