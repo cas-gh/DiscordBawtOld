@@ -1,8 +1,11 @@
 # This is a Discord bot that allows for more IRC-like moderation
 # TODO:
 # 1) Implement actual functionality to mute and unmute after time passes.
-# 2) Create database for the point system.
+# 2) Create a '++help' command that lists possible commands
+# 3) Create some sort of way to rate-limit voting
 
+import sqlite3
+from sqlite3 import Error
 import config
 import discord
 from discord.utils import get
@@ -11,6 +14,51 @@ from discord.utils import get
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
+
+
+# SQLite function definitions
+
+# Opens the connection to the sql db
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        print(sqlite3.version)
+    except Error as e:
+        print(e)
+
+    return conn
+
+
+# Creates a new member
+def create_member(conn, project):
+    sql = ''' INSERT INTO members(name,points) 
+              VALUES(?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, project)
+    conn.commit()
+
+    return cur.lastrowid
+
+
+# Updates a member's info
+def update_member(conn, member):
+    sql = ''' UPDATE members
+              SET points = points + ?
+              WHERE name = ?'''
+
+    cur = conn.cursor()
+    cur.execute(sql, member)
+    conn.commit()
+
+
+# Executes update_member
+def update_main(vote_amount, vote_member):
+    database = "pysqlite_test.db"
+
+    conn = create_connection(database)
+    with conn:
+        update_member(conn, (vote_amount, vote_member))
 
 
 # Login
@@ -79,12 +127,14 @@ async def on_message(message):
                         raise ValueError
                     else:
                         await message.channel.send(f'Vote amount: -{vote_amount}.\nVoted for: {vote_member}.')
+                        update_main(vote_amount, vote_member)
 
                 elif vote_sign == '++':
                     if vote_amount < 1 or vote_amount > 100:
                         raise ValueError
                     else:
                         await message.channel.send(f'Vote amount: {vote_amount}.\nVoted for: {vote_member}.')
+                        update_main(vote_amount, vote_member)
 
                 else:
                     await message.channel.send("Something went wrong.")
