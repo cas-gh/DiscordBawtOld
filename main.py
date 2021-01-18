@@ -43,7 +43,7 @@ def create_member(conn, project):
 
 
 # Updates a member's info
-def update_member(conn, member):
+def update_member_add(conn, member):
     sql = ''' UPDATE members
               SET points = points + ?
               WHERE name = ?'''
@@ -53,13 +53,31 @@ def update_member(conn, member):
     conn.commit()
 
 
+def update_member_sub(conn, member):
+    sql = ''' UPDATE members
+              SET points = points - ?
+              WHERE name = ?'''
+
+    cur = conn.cursor()
+    cur.execute(sql, member)
+    conn.commit()
+
+
 # Executes update_member
-def update_main(vote_amount, vote_member):
+def update_main_add(vote_amount, vote_member):
     database = "pysqlite_test.db"
 
     conn = create_connection(database)
     with conn:
-        update_member(conn, (vote_amount, vote_member))
+        update_member_add(conn, (vote_amount, vote_member))
+
+
+def update_main_sub(vote_amount, vote_member):
+    database = "pysqlite_test.db"
+
+    conn = create_connection(database)
+    with conn:
+        update_member_sub(conn, (vote_amount, vote_member))
 
 
 # Login
@@ -128,14 +146,14 @@ async def on_message(message):
                         raise ValueError
                     else:
                         await message.channel.send(f'Vote amount: -{vote_amount}.\nVoted for: {vote_member}.')
-                        update_main(vote_amount, vote_member)
+                        update_main_sub(vote_amount, vote_member)
 
                 elif vote_sign == '++':
                     if vote_amount < 1 or vote_amount > 100:
                         raise ValueError
                     else:
                         await message.channel.send(f'Vote amount: {vote_amount}.\nVoted for: {vote_member}.')
-                        update_main(vote_amount, vote_member)
+                        update_main_add(vote_amount, vote_member)
 
                 else:
                     await message.channel.send("Something went wrong.")
