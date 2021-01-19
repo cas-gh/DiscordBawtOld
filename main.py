@@ -157,7 +157,7 @@ async def on_message(message):
             if message.content[2:] == "me":
                 author = str(message.author.name).split('#')[0].lower()
                 points = str(select_points_main(author)).split(',')[2][:-1]
-                await message.channel.send(f'You have {points} points.')
+                await message.channel.send(f'You have{points} points.')
 
             else:
                 # Try/Except block that ensures valid input if user is attempting to vote
