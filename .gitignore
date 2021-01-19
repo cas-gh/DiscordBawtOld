@@ -4,3 +4,4 @@
 # Except this stuff
 !.gitignore
 !main.py
+!README.txt

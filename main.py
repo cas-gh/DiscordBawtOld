@@ -1,4 +1,4 @@
-# This is a Discord bot that allows for more IRC-like moderation
+# This is a Discord bot that allows for more IRC-like moderation amongst other things.
 # TODO:
 # 1) Implement actual functionality to mute and unmute after time passes.
 # 2) Create a '++help' command that lists possible commands
