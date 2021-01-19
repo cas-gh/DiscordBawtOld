@@ -1,4 +1,4 @@
-# This is a Discord bot that allows for more IRC-like moderation amongst other things.
+# This is a Discord bot that allows for more IRC-like moderation amongst other things
 # TODO:
 # 1) Implement actual functionality to mute and unmute after time passes.
 # 2) Create a '++help' command that lists possible commands
@@ -24,7 +24,6 @@ def create_connection(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
     except Error as e:
         print(e)
 
@@ -78,6 +77,26 @@ def update_main_sub(vote_amount, vote_member):
     conn = create_connection(database)
     with conn:
         update_member_sub(conn, (vote_amount, vote_member))
+
+
+# Grabs the member's points from the database
+def select_points(conn, member):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM members WHERE name=?", (member,))
+
+    rows = cur.fetchall()
+
+    for row in rows:
+        return row
+
+
+# Executes the select_points function
+def select_points_main(member):
+    database = "pysqlite_test.db"
+
+    conn = create_connection(database)
+    with conn:
+        return select_points(conn, member)
 
 
 # Login
@@ -134,32 +153,39 @@ async def on_message(message):
             vote_amount = message.content[2:space_index]
             vote_member = message.content[space_index + 1:]
 
-            # Try/Except block that ensures valid input
-            try:
-                vote_amount = int(vote_amount)
+            # Returns the user's points
+            if message.content[2:] == "me":
+                author = str(message.author.name).split('#')[0].lower()
+                points = str(select_points_main(author)).split(',')[2][:-1]
+                await message.channel.send(f'You have {points} points.')
 
-                if vote_member not in member_list:
-                    await message.channel.send("There is no user in this server by that name.")
+            else:
+                # Try/Except block that ensures valid input if user is attempting to vote
+                try:
+                    vote_amount = int(vote_amount)
 
-                elif vote_sign == '--':
-                    if vote_amount < 1 or vote_amount > 100:
-                        raise ValueError
+                    if vote_member not in member_list:
+                        await message.channel.send("There is no user in this server by that name.")
+
+                    elif vote_sign == '--':
+                        if vote_amount < 1 or vote_amount > 100:
+                            raise ValueError
+                        else:
+                            await message.channel.send(f'Vote amount: -{vote_amount}.\nVoted for: {vote_member}.')
+                            update_main_sub(vote_amount, vote_member)
+
+                    elif vote_sign == '++':
+                        if vote_amount < 1 or vote_amount > 100:
+                            raise ValueError
+                        else:
+                            await message.channel.send(f'Vote amount: {vote_amount}.\nVoted for: {vote_member}.')
+                            update_main_add(vote_amount, vote_member)
+
                     else:
-                        await message.channel.send(f'Vote amount: -{vote_amount}.\nVoted for: {vote_member}.')
-                        update_main_sub(vote_amount, vote_member)
+                        await message.channel.send("Something went wrong.")
 
-                elif vote_sign == '++':
-                    if vote_amount < 1 or vote_amount > 100:
-                        raise ValueError
-                    else:
-                        await message.channel.send(f'Vote amount: {vote_amount}.\nVoted for: {vote_member}.')
-                        update_main_add(vote_amount, vote_member)
-
-                else:
-                    await message.channel.send("Something went wrong.")
-
-            except ValueError:
-                await message.channel.send("Invalid vote amount.")
+                except ValueError:
+                    await message.channel.send("Invalid vote amount.")
         else:
             await message.channel.send("You don't have permission to do that.")
 
