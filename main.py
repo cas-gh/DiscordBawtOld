@@ -4,6 +4,7 @@
 # 2) Create a '++help' command that lists possible commands
 # 3) Create all the other commands that make sense like leaderboards
 # 4) Create some sort of way to rate-limit voting
+# 5) Add daily spins to award votes???
 
 import sqlite3
 from sqlite3 import Error
