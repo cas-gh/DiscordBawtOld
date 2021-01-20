@@ -1,10 +1,9 @@
 # This is a Discord bot that allows for more IRC-like moderation amongst other things
 # TODO:
 # 1) Implement actual functionality to mute and unmute after time passes.
-# 2) Create a '++help' command that lists possible commands
-# 3) Create all the other commands that make sense like leaderboards
-# 4) Create some sort of way to rate-limit voting
-# 5) Add daily spins to award votes???
+# 2) Create a "++leaderboard" command to show the top 10 users by points.
+# 3) Create some sort of way to rate-limit voting
+# 4) Add daily spins to award votes???
 
 import sqlite3
 from sqlite3 import Error
@@ -159,6 +158,13 @@ async def on_message(message):
                 author = str(message.author.name).split('#')[0].lower()
                 points = str(select_points_main(author)).split(',')[2][1:-1]
                 await message.channel.send(f'You have {points} points.')
+
+            elif message.content[2:] == "help":
+                await message.channel.send("Here is a list of available commands: \n"
+                                           "++[number] [user] to give a user points.\n"
+                                           "--[number] [user] to take away from a user's points\n"
+                                           "++me to view your total points.\n"
+                                           "++leaderboard to view the top 10 users by points (COMING SOON).")
 
             else:
                 # Try/Except block that ensures valid input if user is attempting to vote
