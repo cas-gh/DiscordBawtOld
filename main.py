@@ -151,7 +151,7 @@ async def on_message(message):
             space_index = message.content.find(' ')
             vote_sign = message.content[:2]
             vote_amount = message.content[2:space_index]
-            vote_member = message.content[space_index + 1:]
+            vote_member = message.content[space_index + 1:].lower()
 
             # Returns the user's points
             if message.content[2:] == "me":
