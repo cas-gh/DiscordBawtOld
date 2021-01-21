@@ -156,7 +156,7 @@ async def on_message(message):
             # Returns the user's points
             if message.content[2:] == "me":
                 author = str(message.author.name).split('#')[0].lower()
-                points = str(select_points_main(author)).split(',')[2][1:-1]
+                points = str(select_points_main(author)).split(',')[2][1:]
                 await message.channel.send(f'You have {points} points.')
 
             elif message.content[2:] == "help":
