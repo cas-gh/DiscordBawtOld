@@ -144,14 +144,20 @@ async def on_message(message):
 
     # Voting system
     if message.content.startswith('++') or message.content.startswith('--'):
-        if get(message.author.roles, name="Registered Voter"):
+        # Index between command/vote and given username
+        space_index = message.content.find(' ')
+        vote_sign = message.content[:2]
+        vote_amount = message.content[2:space_index]
+        vote_member = message.content[space_index + 1:].lower()
+
+        # Checks for disallowed self-voting
+        if str(message.author.name).split('#')[0].lower() == vote_member:
+            await message.channel.send("You can't vote for yourself!")
+
+        # Checks for required permissions
+        elif get(message.author.roles, name="Registered Voter"):
             # Silly slice to get all server members
             member_list = [str(i).split('#')[0].lower() for i in client.get_all_members()]
-            # Index between command/vote and given username
-            space_index = message.content.find(' ')
-            vote_sign = message.content[:2]
-            vote_amount = message.content[2:space_index]
-            vote_member = message.content[space_index + 1:].lower()
 
             # Returns the user's points
             if message.content[2:] == "me":
@@ -159,6 +165,7 @@ async def on_message(message):
                 points = str(select_points_main(author)).split(',')[2][1:]
                 await message.channel.send(f'You have {points} points.')
 
+            # Returns a list of all commands
             elif message.content[2:] == "help":
                 await message.channel.send("Here is a list of available commands: \n"
                                            "++[number] [user] to give a user points.\n"
@@ -194,7 +201,8 @@ async def on_message(message):
                 except ValueError:
                     await message.channel.send("Invalid vote amount.")
         else:
-            await message.channel.send("You don't have permission to do that.")
+            # await message.channel.send("You don't have permission to do that.")
+            pass
 
 
 if __name__ == "__main__":
