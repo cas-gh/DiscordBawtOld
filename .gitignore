@@ -2,6 +2,7 @@
 *
 
 # Except this stuff
+!pysqlite_test.db
 !.gitignore
 !main.py
 !README.txt
