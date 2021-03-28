@@ -1,15 +1,16 @@
 # This is a Discord bot that allows for more IRC-like moderation amongst other things
 # TODO:
 # 1) Implement actual functionality to mute and unmute after time passes.
-# 2) Create a "++leaderboard" command to show the top 10 users by points.
+# 2) Create a "++leaderboard" command to show the top 10 users by points. (include score for jagex here regardless)
 # 3) Create some sort of way to rate-limit voting
 # 4) Add daily spins to award votes???
 
 import sqlite3
 from sqlite3 import Error
-import config
 import discord
 from discord.utils import get
+import config
+
 
 # Sets the intents on startup so bot can read all users in the server
 intents = discord.Intents.default()
@@ -114,6 +115,7 @@ async def on_message(message):
 
     # Ridiculous slice picks out just the discord username from messy generator
     # and forces lower case for ease of comparison later
+
     if message.content.startswith(',mute') and get(message.author.roles, name="Moderator"):
         member_list = [str(i).split('#')[0].lower() for i in client.get_all_members()]
 
@@ -143,6 +145,17 @@ async def on_message(message):
             await message.channel.send("Invalid Command.")
 
     # Voting system
+
+    if message.content.startswith('+forts'):
+        try:
+            num_forts = int(message.content[7:])
+            if num_forts > 100000 or num_forts < 1:
+                raise ValueError
+            num_clues = round(num_forts * 2.4257313822690679466766024624084)
+            await message.channel.send(f'You should have to do around {num_clues} easy clues with average luck.')
+        except ValueError:
+            await message.channel.send("Invalid input.")
+
     if message.content.startswith('++') or message.content.startswith('--'):
         # Index between command/vote and given username
         space_index = message.content.find(' ')
@@ -167,11 +180,15 @@ async def on_message(message):
 
             # Returns a list of all commands
             elif message.content[2:] == "help":
-                await message.channel.send("Here is a list of available commands: \n"
+                await message.channel.send("This bot allows users to vote on fellow server members.\n"
+                                           "Votes can either be positive or negative with a maximum value of 1.\n"
+                                           "It is heavily encouraged to post a follow-up comment with a reason "
+                                           "for your vote.\n"
+                                           "Here is a list of available commands: \n"
                                            "++[number] [user] to give a user points.\n"
                                            "--[number] [user] to take away from a user's points\n"
                                            "++me to view your total points.\n"
-                                           "++leaderboard to view the top 10 users by points (COMING SOON).")
+                                           "+forts [number] to see how many clues you may need to do to get them. [COULD BE WRONG IDFK]")
 
             else:
                 # Try/Except block that ensures valid input if user is attempting to vote
@@ -182,14 +199,14 @@ async def on_message(message):
                         await message.channel.send("There is no user in this server by that name.")
 
                     elif vote_sign == '--':
-                        if vote_amount < 1 or vote_amount > 100:
+                        if vote_amount < 1 or vote_amount > 1:
                             raise ValueError
                         else:
                             await message.channel.send(f'Vote amount: -{vote_amount}.\nVoted for: {vote_member}.')
                             update_main_sub(vote_amount, vote_member)
 
                     elif vote_sign == '++':
-                        if vote_amount < 1 or vote_amount > 100:
+                        if vote_amount < 1 or vote_amount > 1:
                             raise ValueError
                         else:
                             await message.channel.send(f'Vote amount: {vote_amount}.\nVoted for: {vote_member}.')
